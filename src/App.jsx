@@ -1,39 +1,141 @@
-import { useState } from 'react';
-import Login from './components/Login';
-//import Sidebar from './components/Sidebar';
-//import Header from './components/Header';
 
-// Importa aquí tus páginas
-//import Inicio from './components/Inicio';
-//import Notas from './components/Notas';
-// import Perfil from './components/Perfil';
-// import Materias from './components/Materias';
+import { useState } from "react";
 
-export default function App() {
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
 
-  const [estaLogueado, setEstaLogueado] = useState(false);
-  const [seccionActiva, setSeccionActiva] = useState('inicio');
+import Inicio from "./pages/Inicio.jsx";
+import Contacto from "./pages/Contacto.jsx";
+import Login from "./pages/Login.jsx";
 
-  if (!estaLogueado) {
-    return <Login onLogin={() => setEstaLogueado(true)} />;
-  }
+import DashboardAlumno from "./pages/DashboardAlumno.jsx";
+import DashboardProfesor from "./pages/DashboardProfesor.jsx";
+import DashboardDirector from "./pages/DashboardDirector.jsx";
 
-  return (
-    <div className="d-flex min-vh-100 bg-light">
-      <Sidebar 
-        seccionActiva={seccionActiva} 
-        setSeccionActiva={setSeccionActiva} 
-        onLogout={() => setEstaLogueado(false)} 
-      />
-      
-      <main className="flex-grow-1 d-flex flex-column w-100">
-        <Header />
-        
-        <div className="p-3 p-md-4 flex-grow-1">
-          {seccionActiva === 'inicio' && <Inicio />}
-          {seccionActiva === 'notas' && <Notas />}
-        </div>
-      </main>
-    </div>
-  );
+function App() {
+
+    const [pagina, setPagina] = useState("inicio");
+
+    const [usuario, setUsuario] = useState(null);
+
+
+    // INICIAR SESIÓN
+    const iniciarSesion = (usuarioIngresado) => {
+
+        setUsuario(usuarioIngresado);
+
+        if (usuarioIngresado.rol === "alumno") {
+            setPagina("alumno");
+        }
+
+        else if (usuarioIngresado.rol === "profesor") {
+            setPagina("profesor");
+        }
+
+        else if (usuarioIngresado.rol === "director") {
+            setPagina("director");
+        }
+    };
+
+
+    // CERRAR SESIÓN
+    const cerrarSesion = () => {
+
+        setUsuario(null);
+
+        setPagina("inicio");
+    };
+
+
+    // MOSTRAR PÁGINA
+    const mostrarPagina = () => {
+
+        if (pagina === "inicio") {
+            return (
+                <Inicio
+                    setPagina={setPagina}
+                />
+            );
+        }
+
+
+        if (pagina === "contacto") {
+            return <Contacto />;
+        }
+
+
+        if (pagina === "login") {
+            return (
+                <Login
+                    iniciarSesion={iniciarSesion}
+                />
+            );
+        }
+
+
+        if (
+            pagina === "alumno" &&
+            usuario?.rol === "alumno"
+        ) {
+            return (
+                <DashboardAlumno
+                    usuario={usuario}
+                    cerrarSesion={cerrarSesion}
+                />
+            );
+        }
+
+
+        if (
+            pagina === "profesor" &&
+            usuario?.rol === "profesor"
+        ) {
+            return (
+                <DashboardProfesor
+                    usuario={usuario}
+                    cerrarSesion={cerrarSesion}
+                />
+            );
+        }
+
+
+        if (
+            pagina === "director" &&
+            usuario?.rol === "director"
+        ) {
+            return (
+                <DashboardDirector
+                    usuario={usuario}
+                    cerrarSesion={cerrarSesion}
+                />
+            );
+        }
+
+
+        // Si no existe la página, volvemos al inicio
+        return (
+            <Inicio
+                setPagina={setPagina}
+            />
+        );
+    };
+
+
+    return (
+        <>
+            <Navbar
+                setPagina={setPagina}
+                usuario={usuario}
+                cerrarSesion={cerrarSesion}
+            />
+
+            <main>
+                {mostrarPagina()}
+            </main>
+
+            <Footer />
+        </>
+    );
 }
+
+export default App;
