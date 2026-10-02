@@ -14,7 +14,7 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    if (usuario === 'ramiro' && contrasena === 'grupo4') {
+    if (usuario === 'ramiro' && contrasena === 'grupo8') {
       setError('');
       onLogin(); 
     } else {
