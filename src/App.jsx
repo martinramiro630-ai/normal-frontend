@@ -6,7 +6,7 @@ import Footer from './components/Footer';
 
 // Importación de las páginas principales
 import Inicio from './pages/Inicio';
-//import Materias from './pages/Materias';
+import Materias from './pages/Materias';
 //import Notas from './pages/Notas';
 // import Asistencias from './pages/Asistencias';
 
