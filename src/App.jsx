@@ -6,9 +6,9 @@ import Footer from './components/Footer';
 
 // Importación de las páginas principales
 import Inicio from './pages/Inicio';
-//import Materias from './pages/Materias';
-//import Notas from './pages/Notas';
-// import Asistencias from './pages/Asistencias';
+import Materias from './pages/Materias';
+import Notas from './pages/Notas';
+import Asistencias from './pages/Asistencias';
 
 export default function App() {
   const [estaLogueado, setEstaLogueado] = useState(false);
@@ -31,7 +31,7 @@ export default function App() {
         {seccionActiva === 'inicio' && <Inicio setSeccionActiva={setSeccionActiva} />}
         {seccionActiva === 'materias' && <Materias />}
         {seccionActiva === 'notas' && <Notas />}
-        {/* {seccionActiva === 'asistencias' && <Asistencias />} */}
+        {seccionActiva === 'asistencias' && <Asistencias />}
       </main>
 
       <Footer />
