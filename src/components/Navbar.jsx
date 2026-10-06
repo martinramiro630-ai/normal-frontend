@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 1. Importamos el hook de enrutamiento
 import {
   Navbar as BootstrapNavbar,
   Nav,
@@ -7,16 +8,19 @@ import {
   Form,
   InputGroup,
 } from "react-bootstrap";
-import { Search } from "react-bootstrap-icons"; // Quité los iconos sociales que no estabas usando aquí
+import { Search } from "react-bootstrap-icons";
 
+// 2. Actualizamos el arreglo para que use las rutas del navegador
 const menu = [
-  { etiqueta: "Institucional", pagina: "inicio" },
-  { etiqueta: "Oferta académica", pagina: "oferta" },
-  { etiqueta: "Inscripciones", pagina: "inscripciones" },
+  { etiqueta: "Institucional", ruta: "/" },
+  { etiqueta: "Oferta académica", ruta: "/oferta" },
+  { etiqueta: "Inscripciones", ruta: "/inscripciones" },
 ];
 
-function Navbar({ setPagina, usuario, cerrarSesion }) {
+// 3. Quitamos setPagina de los parámetros recibidos
+function Navbar({ usuario, cerrarSesion }) {
   const [busqueda, setBusqueda] = useState("");
+  const navigate = useNavigate(); // 4. Instanciamos la función de navegación
 
   const buscar = (e) => {
     e.preventDefault();
@@ -26,7 +30,7 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
   return (
     <header role="banner">
       <BootstrapNavbar
-        expand="xl" // Volvimos a xl para mantener el diseño horizontal
+        expand="xl"
         variant="dark"
         sticky="top"
         className="barra w-100 py-0 shadow-sm"
@@ -35,7 +39,7 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
       >
         <Container fluid className="px-4">
           <BootstrapNavbar.Brand
-            onClick={() => setPagina("inicio")}
+            onClick={() => navigate("/")} // Redirigimos a la raíz
             style={{ cursor: "pointer" }}
             className="me-4 py-2"
             title="Volver al inicio de la Escuela Normal"
@@ -61,7 +65,7 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
               {menu.map((item) => (
                 <Nav.Link
                   key={item.etiqueta}
-                  onClick={() => setPagina(item.pagina)}
+                  onClick={() => navigate(item.ruta)} // Usamos navigate con el arreglo
                   title={`Ir a la sección de ${item.etiqueta}`}
                   role="menuitem"
                 >
@@ -70,7 +74,6 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
               ))}
             </Nav>
 
-            {/* Redujimos de gap-3 a gap-2 para ahorrar espacio horizontal vital */}
             <div className="d-flex flex-column flex-xl-row align-items-xl-center gap-2 my-3 my-xl-0">
               <Form onSubmit={buscar} role="search">
                 <InputGroup className="buscador">
@@ -95,7 +98,7 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
                 <Button
                   variant="outline-light"
                   size="sm"
-                  onClick={() => setPagina("login")}
+                  onClick={() => navigate("/login")} // Redirigimos a la ruta del login
                   aria-label="Iniciar sesión en el sistema"
                   className="text-nowrap ms-xl-2"
                 >
@@ -110,17 +113,11 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
                     {usuario.nombre} ({usuario.rol})
                   </span>
 
-                  {/* El text-nowrap en los botones evita que se partan si la pantalla es chica */}
                   <Button
                     variant="outline-light"
                     size="sm"
                     className="text-nowrap"
-                    // Esto transforma "alumno" en "DashboardAlumno", o "profesor" en "DashboardProfesor"
-                    onClick={() =>
-                      setPagina(
-                        `Dashboard${usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1)}`,
-                      )
-                    }
+                    onClick={() => navigate(`/dashboard/${usuario.rol}`)} // Redirigimos al panel dinámico
                     aria-label="Ir a mi panel de usuario"
                   >
                     Mi panel
@@ -129,7 +126,10 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
                     variant="danger"
                     size="sm"
                     className="text-nowrap"
-                    onClick={cerrarSesion}
+                    onClick={() => {
+                      cerrarSesion();
+                      navigate("/"); // Tras cerrar sesión, lo enviamos al inicio
+                    }}
                     aria-label="Cerrar la sesión actual"
                   >
                     Salir
