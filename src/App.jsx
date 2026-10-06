@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
@@ -7,135 +7,67 @@ import Footer from "./components/Footer.jsx";
 import Inicio from "./pages/Inicio.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Login from "./pages/Login.jsx";
-import Carrousel from "./components/Carrousel.jsx";
 
 import DashboardAlumno from "./pages/DashboardAlumno.jsx";
 import DashboardProfesor from "./pages/DashboardProfesor.jsx";
 import DashboardDirector from "./pages/DashboardDirector.jsx";
 
 function App() {
-
-    const [pagina, setPagina] = useState("inicio");
-
+    // Solo necesitamos guardar la sesión activa, el enrutador se encarga de la navegación
     const [usuario, setUsuario] = useState(null);
 
-
-    // INICIAR SESIÓN
-    const iniciarSesion = (usuarioIngresado) => {
-
-        setUsuario(usuarioIngresado);
-
-        if (usuarioIngresado.rol === "alumno") {
-            setPagina("alumno");
-        }
-
-        else if (usuarioIngresado.rol === "profesor") {
-            setPagina("profesor");
-        }
-
-        else if (usuarioIngresado.rol === "director") {
-            setPagina("director");
-        }
-    };
-
-
-    // CERRAR SESIÓN
     const cerrarSesion = () => {
-
         setUsuario(null);
-
-        setPagina("inicio");
+        // Nota: La redirección a "/" al cerrar sesión ahora la hace tu Navbar con useNavigate()
     };
-
-
-    // MOSTRAR PÁGINA
-    const mostrarPagina = () => {
-
-        if (pagina === "inicio") {
-            return (
-                <Inicio
-                    setPagina={setPagina}
-                />
-            );
-        }
-
-
-        if (pagina === "contacto") {
-            return <Contacto />;
-        }
-
-
-        if (pagina === "login") {
-            return (
-                <Login
-                    iniciarSesion={iniciarSesion}
-                />
-            );
-        }
-
-
-        if (
-            pagina === "alumno" &&
-            usuario?.rol === "alumno"
-        ) {
-            return (
-                <DashboardAlumno
-                    usuario={usuario}
-                    cerrarSesion={cerrarSesion}
-                />
-            );
-        }
-
-
-        if (
-            pagina === "profesor" &&
-            usuario?.rol === "profesor"
-        ) {
-            return (
-                <DashboardProfesor
-                    usuario={usuario}
-                    cerrarSesion={cerrarSesion}
-                />
-            );
-        }
-
-
-        if (
-            pagina === "director" &&
-            usuario?.rol === "director"
-        ) {
-            return (
-                <DashboardDirector
-                    usuario={usuario}
-                    cerrarSesion={cerrarSesion}
-                />
-            );
-        }
-
-
-        // Si no existe la página, volvemos al inicio
-        return (
-            <Inicio
-                setPagina={setPagina}
-            />
-        );
-    };
-
 
     return (
-        <>
-            <Navbar
-                setPagina={setPagina}
-                usuario={usuario}
-                cerrarSesion={cerrarSesion}
-            />
+        <BrowserRouter>
+            {/* El Navbar y Footer quedan fuera de las Rutas para que se vean en todas las páginas */}
+            <Navbar usuario={usuario} cerrarSesion={cerrarSesion} />
 
-            <main>
-                {mostrarPagina()}
+            <main className="flex-grow-1">
+                <Routes>
+                    {/* Rutas Públicas */}
+                    <Route path="/" element={<Inicio />} />
+                    <Route path="/contacto" element={<Contacto />} />
+                    
+                    {/* Le pasamos la función setUsuario al Login para que guarde los datos al ingresar */}
+                    <Route path="/login" element={<Login setUsuario={setUsuario} />} />
+
+                    {/* Rutas Protegidas: Si el rol es correcto muestra el panel, sino lo devuelve al Login */}
+                    <Route 
+                        path="/dashboard/alumno" 
+                        element={
+                            usuario?.rol === "alumno" 
+                                ? <DashboardAlumno usuario={usuario} /> 
+                                : <Navigate to="/login" />
+                        } 
+                    />
+                    <Route 
+                        path="/dashboard/profesor" 
+                        element={
+                            usuario?.rol === "profesor" 
+                                ? <DashboardProfesor usuario={usuario} /> 
+                                : <Navigate to="/login" />
+                        } 
+                    />
+                    <Route 
+                        path="/dashboard/director" 
+                        element={
+                            usuario?.rol === "director" 
+                                ? <DashboardDirector usuario={usuario} /> 
+                                : <Navigate to="/login" />
+                        } 
+                    />
+
+                    {/* Ruta comodín (404): Si alguien escribe una URL que no existe, vuelve a Inicio */}
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
             </main>
 
             <Footer />
-        </>
+        </BrowserRouter>
     );
 }
 
