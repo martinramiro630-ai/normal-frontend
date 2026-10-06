@@ -3,7 +3,7 @@ import { Carousel } from 'react-bootstrap';
 // 1. Debes importar CADA imagen individualmente desde tu carpeta assets
 import img1 from '../assets/noticia1.png';
 import img2 from '../assets/noticia2.png'; // Reemplazá 'hero.png' por el nombre de tu segunda foto
-import img3 from '../assets/noticia3.jpg'; // Reemplazá 'hero.png' por el nombre de tu tercera foto
+import img3 from '../assets/noticia3.png'; // Reemplazá 'hero.png' por el nombre de tu tercera foto
 
 const diapositivas = [
   {

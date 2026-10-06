@@ -12,7 +12,7 @@ import Carrousel from "../components/Carrousel";
 // 1. IMPORTACIONES LOCALES
 import imgNoticia1 from "../assets/noticia1.png";
 import imgNoticia2 from "../assets/noticia2.png";
-import imgNoticia3 from "../assets/noticia3.jpg";
+import imgNoticia3 from "../assets/noticia3.png";
 
 import imgAcceso1 from "../assets/acceso-alumnos.png";
 import imgAcceso2 from "../assets/acceso-profesores.png";
