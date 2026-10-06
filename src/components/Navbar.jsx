@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Navbar as BootstrapNavbar,
   Nav,
-  NavDropdown,
   Container,
   Button,
   Form,
@@ -13,44 +12,13 @@ import {
   Youtube,
   Instagram,
   Search,
-  ChevronRight,
 } from 'react-bootstrap-icons';
 
-// Cada opción puede tener "hijos" (menú desplegable) y estos otros "hijos" (submenú).
-// Los textos de Libros y Anuarios son de ejemplo: cambialos por los tuyos.
+// Array limpio sin Publicaciones, Plataformas ni Contacto
 const menu = [
   { etiqueta: 'Institucional', pagina: 'inicio' },
-  {
-    etiqueta: 'Publicaciones',
-    hijos: [
-      { etiqueta: 'Revista Scholé', pagina: 'revista' },
-      {
-        etiqueta: 'Libros',
-        hijos: [
-          { etiqueta: 'Colección general', pagina: 'libros' },
-          { etiqueta: 'Novedades', pagina: 'libros-novedades' },
-        ],
-      },
-      { etiqueta: 'Itinerarios en el tiempo', pagina: 'itinerarios' },
-      {
-        etiqueta: 'Anuarios',
-        hijos: [
-          { etiqueta: 'Anuario 2025', pagina: 'anuario-2025' },
-          { etiqueta: 'Anuario 2024', pagina: 'anuario-2024' },
-        ],
-      },
-    ],
-  },
-  { etiqueta: 'Nuestras plataformas', pagina: 'plataformas' },
   { etiqueta: 'Oferta académica', pagina: 'oferta' },
   { etiqueta: 'Inscripciones', pagina: 'inscripciones' },
-  { etiqueta: 'Contacto', pagina: 'contacto' },
-];
-
-const redes = [
-  { nombre: 'Facebook', url: 'https://www.facebook.com', Icono: Facebook },
-  { nombre: 'YouTube', url: 'https://www.youtube.com', Icono: Youtube },
-  { nombre: 'Instagram', url: 'https://www.instagram.com', Icono: Instagram },
 ];
 
 function Navbar({ setPagina, usuario, cerrarSesion }) {
@@ -62,160 +30,109 @@ function Navbar({ setPagina, usuario, cerrarSesion }) {
   };
 
   return (
-    <BootstrapNavbar
-      expand="xl"
-      variant="dark"
-      sticky="top"
-      className="barra w-100 py-0"
-    >
-      <Container fluid className="px-4">
+    // Etiqueta semántica principal para mejorar la estructura SEO del DOM
+    <header role="banner">
+      <BootstrapNavbar
+        expand="xl"
+        variant="dark"
+        sticky="top"
+        className="barra w-100 py-0 shadow-sm"
+        as="nav"
+        aria-label="Navegación principal de la institución"
+      >
+        <Container fluid className="px-4">
 
-        <BootstrapNavbar.Brand
-          onClick={() => setPagina('inicio')}
-          style={{ cursor: 'pointer' }}
-          className="me-4 py-2"
-        >
-          <span className="logo">
-            <span className="logo-fichas" aria-hidden="true">
-              <span className="logo-ficha">E</span>
-              <span className="logo-ficha">N</span>
+          <BootstrapNavbar.Brand
+            onClick={() => setPagina('inicio')}
+            style={{ cursor: 'pointer' }}
+            className="me-4 py-2"
+            title="Volver al inicio de la Escuela Normal"
+          >
+            <span className="logo">
+              <span className="logo-fichas" aria-hidden="true">
+                <span className="logo-ficha">N</span>
+              </span>
+              <span className="logo-texto">
+                <span className="logo-escuela">Escuela</span>
+                <span className="logo-normal">Normal</span>
+              </span>
             </span>
-            <span className="logo-texto">
-              <span className="logo-escuela">Escuela</span>
-              <span className="logo-normal">Normal</span>
-            </span>
-          </span>
-        </BootstrapNavbar.Brand>
+          </BootstrapNavbar.Brand>
 
-        <BootstrapNavbar.Toggle aria-controls="menu" />
+          <BootstrapNavbar.Toggle aria-controls="menu-principal" aria-label="Abrir menú de navegación" />
 
-        <BootstrapNavbar.Collapse id="menu">
+          <BootstrapNavbar.Collapse id="menu-principal">
 
-          {/* Opciones centradas */}
-          <Nav className="mx-auto nav-hover">
-            {menu.map((item, i) =>
-              item.hijos ? (
-                <NavDropdown
-                  key={item.etiqueta}
-                  title={item.etiqueta}
-                  id={`menu-${i}`}
-                  renderMenuOnMount
-                >
-                  {item.hijos.map((hijo) =>
-                    hijo.hijos ? (
-                      <div key={hijo.etiqueta} className="submenu">
-                        <div className="dropdown-item d-flex justify-content-between align-items-center">
-                          {hijo.etiqueta}
-                          <ChevronRight size={12} />
-                        </div>
-                        <div className="submenu-panel">
-                          {hijo.hijos.map((nieto) => (
-                            <NavDropdown.Item
-                              key={nieto.etiqueta}
-                              onClick={() => setPagina(nieto.pagina)}
-                            >
-                              {nieto.etiqueta}
-                            </NavDropdown.Item>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <NavDropdown.Item
-                        key={hijo.etiqueta}
-                        onClick={() => setPagina(hijo.pagina)}
-                      >
-                        {hijo.etiqueta}
-                      </NavDropdown.Item>
-                    )
-                  )}
-                </NavDropdown>
-              ) : (
+            {/* Opciones centradas y simplificadas */}
+            <Nav className="mx-auto nav-hover" role="menubar">
+              {menu.map((item) => (
                 <Nav.Link
                   key={item.etiqueta}
                   onClick={() => setPagina(item.pagina)}
+                  title={`Ir a la sección de ${item.etiqueta}`}
+                  role="menuitem"
                 >
                   {item.etiqueta}
                 </Nav.Link>
-              )
-            )}
-          </Nav>
-
-          {/* Buscador, redes y sesión */}
-          <div className="d-flex flex-column flex-xl-row align-items-xl-center gap-3 my-3 my-xl-0">
-
-            <Form onSubmit={buscar}>
-              <InputGroup className="buscador">
-                <Form.Control
-                  type="search"
-                  placeholder="Buscar"
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                />
-                <Button type="submit" aria-label="Buscar">
-                  <Search />
-                </Button>
-              </InputGroup>
-            </Form>
-
-            <div className="d-flex gap-3">
-              {redes.map(({ nombre, url, Icono }) => (
-                <a
-                  key={nombre}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={nombre}
-                  className="text-white fs-5"
-                >
-                  <Icono />
-                </a>
               ))}
-            </div>
+            </Nav>
 
-            {!usuario ? (
+            <div className="d-flex flex-column flex-xl-row align-items-xl-center gap-3 my-3 my-xl-0">
 
-              <Button
-                variant="outline-light"
-                size="sm"
-                onClick={() => setPagina('login')}
-              >
-                Iniciar sesión
-              </Button>
+              {/* Buscador con rol semántico */}
+              <Form onSubmit={buscar} role="search">
+                <InputGroup className="buscador">
+                  <Form.Control
+                    type="search"
+                    placeholder="Buscar información..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    aria-label="Caja de búsqueda del portal"
+                  />
+                  <Button type="submit" aria-label="Ejecutar búsqueda" variant="primary">
+                    <Search aria-hidden="true" />
+                  </Button>
+                </InputGroup>
+              </Form>
 
-            ) : (
-
-              <div className="d-flex align-items-center gap-3 text-white">
-
-                <span>
-                  {usuario.nombre} ({usuario.rol})
-                </span>
-
+              {!usuario ? (
                 <Button
                   variant="outline-light"
                   size="sm"
-                  onClick={() => setPagina(usuario.rol)}
+                  onClick={() => setPagina('login')}
+                  aria-label="Iniciar sesión en el sistema"
                 >
-                  Mi panel
+                  Iniciar sesión
                 </Button>
+              ) : (
+                <div className="d-flex align-items-center gap-3 text-white">
+                  <span aria-label={`Usuario conectado: ${usuario.nombre}`}>
+                    {usuario.nombre} ({usuario.rol})
+                  </span>
+                  <Button
+                    variant="outline-light"
+                    size="sm"
+                    onClick={() => setPagina(usuario.rol)}
+                    aria-label="Ir a mi panel de usuario"
+                  >
+                    Mi panel
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={cerrarSesion}
+                    aria-label="Cerrar la sesión actual"
+                  >
+                    Cerrar sesión
+                  </Button>
+                </div>
+              )}
 
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={cerrarSesion}
-                >
-                  Cerrar sesión
-                </Button>
-
-              </div>
-
-            )}
-
-          </div>
-
-        </BootstrapNavbar.Collapse>
-
-      </Container>
-    </BootstrapNavbar>
+            </div>
+          </BootstrapNavbar.Collapse>
+        </Container>
+      </BootstrapNavbar>
+    </header>
   );
 }
 

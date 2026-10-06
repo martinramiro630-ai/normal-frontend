@@ -7,6 +7,7 @@ import Footer from "./components/Footer.jsx";
 import Inicio from "./pages/Inicio.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Login from "./pages/Login.jsx";
+import Carrousel from "./components/Carrousel.jsx";
 
 import DashboardAlumno from "./pages/DashboardAlumno.jsx";
 import DashboardProfesor from "./pages/DashboardProfesor.jsx";
