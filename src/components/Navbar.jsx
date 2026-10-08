@@ -1,142 +1,215 @@
 import { useState } from "react";
-import {
-  Navbar as BootstrapNavbar,
-  Nav,
-  Container,
-  Button,
-  Form,
-  InputGroup,
-} from "react-bootstrap";
-import { Search } from "react-bootstrap-icons"; // Quité los iconos sociales que no estabas usando aquí
+import { Link, useNavigate } from "react-router-dom";
+import { Navbar as BootstrapNavbar, Nav, Container, Button, Form, InputGroup } from "react-bootstrap";
+import { Search } from "react-bootstrap-icons";
+import { motion } from "framer-motion";
+import Swal from "sweetalert2";
 
+// 1. Reconfiguramos el menú para definir tipos de acciones
 const menu = [
-  { etiqueta: "Institucional", pagina: "inicio" },
-  { etiqueta: "Oferta académica", pagina: "oferta" },
-  { etiqueta: "Inscripciones", pagina: "inscripciones" },
+  { etiqueta: "Institucional", tipo: "link_externo", url: "https://www.lagaceta.com.ar/nota/1149505/sociedad/profundizan-mejoras-edilicias-equipan-laboratorios-escuela-normal.html" },
+  { etiqueta: "Oferta académica", tipo: "modal_oferta" },
+  { etiqueta: "Inscripciones", tipo: "modal_inscripciones" },
 ];
 
-function Navbar({ setPagina, usuario, cerrarSesion }) {
+function Navbar({ usuario, cerrarSesion }) {
   const [busqueda, setBusqueda] = useState("");
+  const navigate = useNavigate();
 
   const buscar = (e) => {
     e.preventDefault();
+    if (!busqueda.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Búsqueda vacía",
+        text: "Por favor, escribe algo para buscar en el portal.",
+        confirmButtonColor: "#f39c12" 
+      });
+      return;
+    }
     console.log("Buscar:", busqueda);
+  };
+
+  const confirmarSalida = () => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Tendrás que volver a ingresar tus credenciales para acceder a tu panel.",
+      icon: "question",
+      showCancelButton: true,
+      customClass: {
+        confirmButton: "btn btn-danger ms-2 fw-bold",
+        cancelButton: "btn btn-secondary fw-bold"
+      },
+      buttonsStyling: false,
+      confirmButtonText: "Sí, salir",
+      cancelButtonText: "Cancelar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cerrarSesion();
+        navigate("/");
+        
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Sesión cerrada correctamente',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      }
+    });
+  };
+
+  // 2. Funciones para disparar las Cards informativas con SweetAlert2
+  const mostrarOfertaAcademica = () => {
+    Swal.fire({
+      title: 'Oferta Académica: Idiomas',
+      html: `
+        <div class="text-start mt-3">
+          <p class="text-muted">La Escuela Normal ofrece formación bilingüe de excelencia en las siguientes áreas:</p>
+          <div class="d-flex align-items-center gap-3 mb-3 p-3 border rounded bg-light">
+            <span class="fs-1">🇬🇧</span>
+            <div>
+              <h5 class="mb-0 fw-bold text-primary">Inglés</h5>
+              <small class="text-muted">Nivel Avanzado - Materia Obligatoria</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3 p-3 border rounded bg-light">
+            <span class="fs-1">🇫🇷</span>
+            <div>
+              <h5 class="mb-0 fw-bold text-info">Francés</h5>
+              <small class="text-muted">Nivel Intermedio - Taller Optativo</small>
+            </div>
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'Excelente',
+      buttonsStyling: false,
+      customClass: { confirmButton: "btn btn-primary fw-bold" }
+    });
+  };
+
+  const mostrarInscripciones = () => {
+    Swal.fire({
+      title: 'Fechas de Inscripción',
+      html: `
+        <div class="text-start mt-3">
+          <div class="alert alert-warning small mb-3">
+            <i class="fa-solid fa-lock"></i> <strong>Aviso:</strong> Estas fechas son dinámicas y son actualizadas directamente por el panel de <strong>Dirección</strong>.
+          </div>
+          <ul class="list-group list-group-flush border rounded">
+            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+              <strong>Primer Llamado</strong>
+              <span class="badge bg-success rounded-pill px-3 py-2">15 Nov - 20 Nov</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+              <strong>Segundo Llamado</strong>
+              <span class="badge bg-success rounded-pill px-3 py-2">05 Dic - 10 Dic</span>
+            </li>
+          </ul>
+        </div>
+      `,
+      icon: 'calendar',
+      confirmButtonText: 'Entendido',
+      buttonsStyling: false,
+      customClass: { confirmButton: "btn btn-success fw-bold" }
+    });
+  };
+
+  // 3. Manejador central para los clics del menú
+  const manejarClickMenu = (e, item) => {
+    e.preventDefault();
+    if (item.tipo === "link_externo") {
+      window.open(item.url, "_blank"); // Abre en pestaña nueva
+    } else if (item.tipo === "modal_oferta") {
+      mostrarOfertaAcademica();
+    } else if (item.tipo === "modal_inscripciones") {
+      mostrarInscripciones();
+    } else {
+      navigate(item.ruta); // Comportamiento por defecto
+    }
   };
 
   return (
     <header role="banner">
       <BootstrapNavbar
-        expand="xl" // Volvimos a xl para mantener el diseño horizontal
+        expand="xl"
+        bg="dark"
         variant="dark"
         sticky="top"
-        className="barra w-100 py-0 shadow-sm"
+        className="w-100 py-2 shadow-sm"
         as="nav"
-        aria-label="Navegación principal de la institución"
       >
         <Container fluid className="px-4">
-          <BootstrapNavbar.Brand
-            onClick={() => setPagina("inicio")}
-            style={{ cursor: "pointer" }}
-            className="me-4 py-2"
-            title="Volver al inicio de la Escuela Normal"
-          >
-            <span className="logo">
-              <span className="logo-fichas" aria-hidden="true">
-                <span className="logo-ficha">N</span>
-              </span>
-              <span className="logo-texto">
-                <span className="logo-escuela">Escuela</span>
-                <span className="logo-normal">Normal</span>
-              </span>
-            </span>
+          
+          <BootstrapNavbar.Brand as={Link} to="/" className="me-4">
+            <motion.span 
+              className="logo d-flex align-items-center gap-2 fw-bold fs-5 text-white"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <i className="fa-solid fa-school"></i>
+              <span>Escuela Normal</span>
+            </motion.span>
           </BootstrapNavbar.Brand>
 
-          <BootstrapNavbar.Toggle
-            aria-controls="menu-principal"
-            aria-label="Abrir menú de navegación"
-          />
+          <BootstrapNavbar.Toggle className="border-0" />
 
-          <BootstrapNavbar.Collapse id="menu-principal">
-            <Nav className="mx-auto nav-hover" role="menubar">
+          <BootstrapNavbar.Collapse>
+            <Nav className="mx-auto nav-hover gap-2">
               {menu.map((item) => (
-                <Nav.Link
-                  key={item.etiqueta}
-                  onClick={() => setPagina(item.pagina)}
-                  title={`Ir a la sección de ${item.etiqueta}`}
-                  role="menuitem"
+                <Nav.Link 
+                  href={item.url || "#"} 
+                  key={item.etiqueta} 
+                  className="fw-semibold"
+                  onClick={(e) => manejarClickMenu(e, item)}
                 >
                   {item.etiqueta}
                 </Nav.Link>
               ))}
             </Nav>
 
-            {/* Redujimos de gap-3 a gap-2 para ahorrar espacio horizontal vital */}
-            <div className="d-flex flex-column flex-xl-row align-items-xl-center gap-2 my-3 my-xl-0">
-              <Form onSubmit={buscar} role="search">
+            <motion.div 
+              className="d-flex flex-column flex-xl-row align-items-xl-center gap-3 my-3 my-xl-0"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Form onSubmit={buscar}>
                 <InputGroup className="buscador">
                   <Form.Control
                     type="search"
                     placeholder="Buscar información..."
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
-                    aria-label="Caja de búsqueda del portal"
                   />
-                  <Button
-                    type="submit"
-                    aria-label="Ejecutar búsqueda"
-                    variant="primary"
-                  >
-                    <Search aria-hidden="true" />
+                  <Button type="submit" variant="light" className="text-primary">
+                    <Search />
                   </Button>
                 </InputGroup>
               </Form>
 
               {!usuario ? (
-                <Button
-                  variant="outline-light"
-                  size="sm"
-                  onClick={() => setPagina("login")}
-                  aria-label="Iniciar sesión en el sistema"
-                  className="text-nowrap ms-xl-2"
-                >
+                <Button variant="light" size="sm" onClick={() => navigate("/login")} className="text-nowrap fw-bold px-3 py-2">
                   Iniciar sesión
                 </Button>
               ) : (
-                <div className="d-flex align-items-center gap-2 text-white ms-xl-2">
-                  <span
-                    aria-label={`Usuario conectado: ${usuario.nombre}`}
-                    className="text-nowrap fw-semibold me-1"
-                  >
+                <div className="d-flex align-items-center gap-2 text-white">
+                  <span className="text-nowrap fw-semibold me-2">
                     {usuario.nombre} ({usuario.rol})
                   </span>
-
-                  {/* El text-nowrap en los botones evita que se partan si la pantalla es chica */}
-                  <Button
-                    variant="outline-light"
-                    size="sm"
-                    className="text-nowrap"
-                    // Esto transforma "alumno" en "DashboardAlumno", o "profesor" en "DashboardProfesor"
-                    onClick={() =>
-                      setPagina(
-                        `Dashboard${usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1)}`,
-                      )
-                    }
-                    aria-label="Ir a mi panel de usuario"
-                  >
+                  <Button variant="light" size="sm" className="text-nowrap text-dark fw-bold" onClick={() => navigate(`/dashboard/${usuario.rol}`)}>
                     Mi panel
                   </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="text-nowrap"
-                    onClick={cerrarSesion}
-                    aria-label="Cerrar la sesión actual"
-                  >
+                  
+                  <Button variant="danger" size="sm" className="text-nowrap fw-bold" onClick={confirmarSalida}>
                     Salir
                   </Button>
                 </div>
               )}
-            </div>
+            </motion.div>
           </BootstrapNavbar.Collapse>
         </Container>
       </BootstrapNavbar>
