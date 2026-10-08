@@ -1,5 +1,5 @@
 {
-  "name": "normalfrontend",
+  "name": "sangre-normalina",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,15 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.20.0",
     "bootstrap": "^5.3.8",
-    "bootstrap-icons": "^1.13.1",
-    "i": "^0.3.7",
-    "npm": "^12.2.0",
-    "o": "^2.3.2",
+    "bootswatch": "^5.3.8",
+    "framer-motion": "^14.0.0",
+    "prettier": "^3.9.9",
     "react": "^19.2.8",
     "react-bootstrap": "^2.10.10",
+    "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.4"
+    "react-router-dom": "^7.18.4",
+    "sweetalert2": "^11.26.25"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
