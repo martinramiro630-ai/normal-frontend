@@ -1,15 +1,14 @@
 import { Carousel } from 'react-bootstrap';
 
-// 1. Debes importar CADA imagen individualmente desde tu carpeta assets
 import img1 from '../assets/noticia1.png';
-import img2 from '../assets/noticia2.png'; // Reemplazá 'hero.png' por el nombre de tu segunda foto
-import img3 from '../assets/noticia3.png'; // Reemplazá 'hero.png' por el nombre de tu tercera foto
+import img2 from '../assets/noticia2.png'; 
+import img3 from '../assets/noticia3.png'; 
 
 const diapositivas = [
   {
     imagen: img1,
     titulo: 'Conocé tu escuela en casa, la plataforma educativa',
-    alt: 'Plataforma educativa de la Escuela Normal', // Texto descriptivo para SEO
+    alt: 'Plataforma educativa de la Escuela Normal', 
   },
   {
     imagen: img2,
@@ -25,12 +24,9 @@ const diapositivas = [
 
 function Carrusel() {
   return (
-    // Agregamos clases de Bootstrap para estilizar los bordes y sombras
     <Carousel fade interval={5000} className="carrusel shadow-sm rounded-4 overflow-hidden mb-4">
       {diapositivas.map((d, i) => (
         <Carousel.Item key={i}>
-          
-          {/* ESTRATEGIA SEO: Uso de etiqueta img con atributo alt en lugar de background-image */}
           <img
             className="d-block w-100 carrusel-img"
             src={d.imagen}

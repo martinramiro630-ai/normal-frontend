@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar as BootstrapNavbar, Nav, Container, Button, Form, InputGroup } from "react-bootstrap";
-import { Search } from "react-bootstrap-icons";
+import { Navbar as BootstrapNavbar, Nav, Container, Button } from "react-bootstrap";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 
-// 1. Reconfiguramos el menú para definir tipos de acciones
 const menu = [
   { etiqueta: "Institucional", tipo: "link_externo", url: "https://www.lagaceta.com.ar/nota/1149505/sociedad/profundizan-mejoras-edilicias-equipan-laboratorios-escuela-normal.html" },
   { etiqueta: "Oferta académica", tipo: "modal_oferta" },
@@ -13,22 +10,7 @@ const menu = [
 ];
 
 function Navbar({ usuario, cerrarSesion }) {
-  const [busqueda, setBusqueda] = useState("");
   const navigate = useNavigate();
-
-  const buscar = (e) => {
-    e.preventDefault();
-    if (!busqueda.trim()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Búsqueda vacía",
-        text: "Por favor, escribe algo para buscar en el portal.",
-        confirmButtonColor: "#f39c12" 
-      });
-      return;
-    }
-    console.log("Buscar:", busqueda);
-  };
 
   const confirmarSalida = () => {
     Swal.fire({
@@ -61,7 +43,6 @@ function Navbar({ usuario, cerrarSesion }) {
     });
   };
 
-  // 2. Funciones para disparar las Cards informativas con SweetAlert2
   const mostrarOfertaAcademica = () => {
     Swal.fire({
       title: 'Oferta Académica: Idiomas',
@@ -117,17 +98,16 @@ function Navbar({ usuario, cerrarSesion }) {
     });
   };
 
-  // 3. Manejador central para los clics del menú
   const manejarClickMenu = (e, item) => {
     e.preventDefault();
     if (item.tipo === "link_externo") {
-      window.open(item.url, "_blank"); // Abre en pestaña nueva
+      window.open(item.url, "_blank");
     } else if (item.tipo === "modal_oferta") {
       mostrarOfertaAcademica();
     } else if (item.tipo === "modal_inscripciones") {
       mostrarInscripciones();
     } else {
-      navigate(item.ruta); // Comportamiento por defecto
+      navigate(item.ruta);
     }
   };
 
@@ -177,20 +157,6 @@ function Navbar({ usuario, cerrarSesion }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Form onSubmit={buscar}>
-                <InputGroup className="buscador">
-                  <Form.Control
-                    type="search"
-                    placeholder="Buscar información..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                  />
-                  <Button type="submit" variant="light" className="text-primary">
-                    <Search />
-                  </Button>
-                </InputGroup>
-              </Form>
-
               {!usuario ? (
                 <Button variant="light" size="sm" onClick={() => navigate("/login")} className="text-nowrap fw-bold px-3 py-2">
                   Iniciar sesión
