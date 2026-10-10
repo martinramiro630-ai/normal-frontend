@@ -2,8 +2,6 @@ import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar.jsx";
-import Footer from "../components/Footer.jsx";
-
 import Inicio from "../pages/Inicio.jsx";
 import Login from "../pages/Login.jsx";
 
@@ -21,7 +19,7 @@ export default function AppRoutes() {
 
   return (
     <BrowserRouter>
-      {/* Navbar visible en todas las rutas */}
+      {/* Navbar visible en todas las rutas, recibe el estado global */}
       <Navbar usuario={usuario} cerrarSesion={cerrarSesion} />
 
       <main className="flex-grow-1">
@@ -30,7 +28,7 @@ export default function AppRoutes() {
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login setUsuario={setUsuario} />} />
 
-          {/* Rutas Protegidas mediante el componente Wrapper */}
+          {/* Ruta Protegida: Alumno */}
           <Route
             path="/dashboard/alumno"
             element={
@@ -40,6 +38,7 @@ export default function AppRoutes() {
             }
           />
           
+          {/* Ruta Protegida: Profesor */}
           <Route
             path="/dashboard/profesor"
             element={
@@ -49,6 +48,7 @@ export default function AppRoutes() {
             }
           />
           
+          {/* Ruta Protegida: Director */}
           <Route
             path="/dashboard/director"
             element={
@@ -62,8 +62,6 @@ export default function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-
-      <Footer />
     </BrowserRouter>
   );
 }

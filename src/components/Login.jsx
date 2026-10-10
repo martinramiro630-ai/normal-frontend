@@ -1,157 +1,146 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Container, Card, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Container, Card, Form, Button, InputGroup } from "react-bootstrap";
-import { PersonFill, LockFill, EyeFill, EyeSlashFill } from "react-bootstrap-icons";
-import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 
-// 1. Recibimos estrictamente 'setUsuario' como prop
 function Login({ setUsuario }) {
-    const [credenciales, setCredenciales] = useState({ usuario: "", contrasena: "" });
-    const [mostrarPassword, setMostrarPassword] = useState(false);
-    const navigate = useNavigate();
+  const [usuario, setUsuarioInput] = useState("");
+  const [password, setPassword] = useState("");
+  const [rol, setRol] = useState("alumno");
+  
+  const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setCredenciales({
-            ...credenciales,
-            [e.target.name]: e.target.value
-        });
-    };
+  const manejarLogin = (e) => {
+    e.preventDefault();
 
-    const handleSubmit = (e) => {
-        e.preventDefault(); 
-        
-        const { usuario, contrasena } = credenciales;
+    if (usuario.trim() === "" || password.trim() === "") {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos incompletos",
+        text: "Por favor, ingresá tu usuario y contraseña.",
+        confirmButtonColor: "#f39c12"
+      });
+      return;
+    }
 
-        if (!usuario.trim() || !contrasena.trim()) {
-            Swal.fire({
-                icon: "warning",
-                title: "Campos incompletos",
-                text: "Por favor, ingresa tu usuario y contraseña.",
-                confirmButtonColor: "#f39c12",
-                customClass: { confirmButton: "btn btn-warning fw-bold text-dark" },
-                buttonsStyling: false
-            });
-            return;
-        }
+    // Validación simulada para los distintos roles del TP
+    let loginExitoso = false;
+    let nombreUsuario = "";
 
-        if (usuario.toLowerCase() === "ramiro" && contrasena === "grupo4") {
-            // 2. Usamos 'setUsuario' en lugar de 'iniciarSesion'
-            setUsuario({ nombre: "Ramiro", rol: "alumno" });
-            
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: '¡Bienvenido de nuevo, Ramiro!',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-            });
+    if (rol === "alumno" && usuario === "ramiro" && password === "grupo4") {
+      loginExitoso = true;
+      nombreUsuario = "Ramiro";
+    } else if (rol === "profesor" && usuario === "profe" && password === "profe") {
+      loginExitoso = true;
+      nombreUsuario = "Profesor Martínez";
+    } else if (rol === "director" && usuario === "admin" && password === "profe") {
+      loginExitoso = true;
+      nombreUsuario = "Dirección";
+    }
 
-            navigate("/dashboard/alumno");
-            
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Acceso denegado",
-                text: "Usuario o contraseña incorrectos. Intentá con 'ramiro' y 'grupo4'.",
-                customClass: { confirmButton: "btn btn-danger fw-bold" },
-                buttonsStyling: false
-            });
-        }
-    };
+    if (loginExitoso) {
+      const usuarioIngresado = {
+        nombre: nombreUsuario,
+        rol: rol
+      };
 
-    return (
-        <section className="bg-light min-vh-100 d-flex align-items-center py-5">
-            <Container>
-                <div className="row justify-content-center">
-                    <div className="col-12 col-md-8 col-lg-5">
-                        
-                        <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
-                        >
-                            <Card className="border-0 shadow-lg rounded-4 overflow-hidden">
-                                
-                                <div className="bg-primary bg-gradient p-4 text-center text-white">
-                                    <div className="display-4 mb-2">
-                                        <i className="fa-solid fa-school"></i>
-                                    </div>
-                                    <h2 className="fw-bold mb-0">Escuela Normal</h2>
-                                    <p className="mb-0 text-white-50 small">Portal de Gestión Académica</p>
-                                </div>
+      setUsuario(usuarioIngresado);
+      
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `¡Bienvenido al panel de ${rol}!`,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
 
-                                <Card.Body className="p-4 p-md-5">
-                                    <h3 className="text-center h5 fw-bold text-dark mb-4">Iniciar Sesión</h3>
-                                    
-                                    <Form onSubmit={handleSubmit} noValidate>
-                                        
-                                        <Form.Group className="mb-4" controlId="formUsuario">
-                                            <Form.Label className="fw-semibold text-secondary small">Usuario</Form.Label>
-                                            <InputGroup>
-                                                <InputGroup.Text className="bg-light border-end-0 text-primary">
-                                                    <PersonFill />
-                                                </InputGroup.Text>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="usuario"
-                                                    placeholder="Ingresá tu usuario"
-                                                    className="border-start-0 bg-light focus-ring focus-ring-primary"
-                                                    value={credenciales.usuario}
-                                                    onChange={handleChange}
-                                                    autoComplete="username"
-                                                />
-                                            </InputGroup>
-                                        </Form.Group>
+      // Redirección dinámica según el rol seleccionado
+      navigate(`/dashboard/${rol}`);
+    } else {
+       Swal.fire({
+        icon: "error",
+        title: "Credenciales incorrectas",
+        text: `El usuario o la contraseña para el rol "${rol}" no coinciden.`,
+        confirmButtonColor: "#d33"
+      });
+    }
+  };
 
-                                        <Form.Group className="mb-4" controlId="formContrasena">
-                                            <Form.Label className="fw-semibold text-secondary small">Contraseña</Form.Label>
-                                            <InputGroup>
-                                                <InputGroup.Text className="bg-light border-end-0 text-primary">
-                                                    <LockFill />
-                                                </InputGroup.Text>
-                                                <Form.Control
-                                                    type={mostrarPassword ? "text" : "password"}
-                                                    name="contrasena"
-                                                    placeholder="Ingresá tu contraseña"
-                                                    className="border-start-0 border-end-0 bg-light focus-ring focus-ring-primary"
-                                                    value={credenciales.contrasena}
-                                                    onChange={handleChange}
-                                                    autoComplete="current-password"
-                                                />
-                                                <Button 
-                                                    variant="light" 
-                                                    className="border border-start-0 text-secondary"
-                                                    onClick={() => setMostrarPassword(!mostrarPassword)}
-                                                    aria-label="Mostrar u ocultar contraseña"
-                                                >
-                                                    {mostrarPassword ? <EyeSlashFill /> : <EyeFill />}
-                                                </Button>
-                                            </InputGroup>
-                                        </Form.Group>
-
-                                        <Button variant="primary" type="submit" className="w-100 fw-bold py-2 shadow-sm rounded-pill">
-                                            Ingresar al Portal
-                                        </Button>
-
-                                    </Form>
-                                </Card.Body>
-                                
-                                <Card.Footer className="bg-white border-0 text-center pb-4">
-                                    <Button variant="link" className="text-decoration-none text-muted small fw-semibold" onClick={() => navigate("/")}>
-                                        <i className="fa-solid fa-arrow-left me-1"></i> Volver al inicio
-                                    </Button>
-                                </Card.Footer>
-                            </Card>
-                        </motion.div>
-
-                    </div>
+  return (
+    <section className="login-section d-flex align-items-center min-vh-100 bg-light">
+      <Container>
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-6 col-lg-4">
+            <Card className="shadow-sm border-0 rounded-4 p-3 bg-white">
+              <Card.Body>
+                <div className="text-center mb-3">
+                  <div className="fs-1 mb-2">🏛️</div>
+                  <h2 className="text-center mb-1 fw-bold text-primary h4">
+                    Iniciar sesión
+                  </h2>
+                  <p className="text-center text-muted small">
+                    Accedé a la plataforma institucional
+                  </p>
                 </div>
-            </Container>
-        </section>
-    );
+
+                <Form onSubmit={manejarLogin}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="small fw-semibold text-secondary">Tipo de usuario</Form.Label>
+                    <Form.Select 
+                      value={rol} 
+                      onChange={(e) => setRol(e.target.value)}
+                      className="focus-ring focus-ring-primary bg-light"
+                    >
+                      <option value="alumno">Alumno</option>
+                      <option value="profesor">Profesor</option>
+                      <option value="director">Director</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label className="small fw-semibold text-secondary">Usuario</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      placeholder="Ingresá tu usuario" 
+                      value={usuario} 
+                      onChange={(e) => setUsuarioInput(e.target.value)}
+                      className="focus-ring focus-ring-primary bg-light"
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-4">
+                    <Form.Label className="small fw-semibold text-secondary">Contraseña</Form.Label>
+                    <Form.Control 
+                      type="password" 
+                      placeholder="Ingresá tu contraseña" 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="focus-ring focus-ring-primary bg-light"
+                    />
+                  </Form.Group>
+
+                  <Button type="submit" variant="primary" className="w-100 fw-bold rounded-pill shadow-sm">
+                    Ingresar al Portal
+                  </Button>
+                </Form>
+                
+                <div className="mt-4 text-center small text-muted border-top pt-3">
+                    <p className="mb-1 fw-bold text-dark">Credenciales de prueba para el TP:</p>
+                    <ul className="list-unstyled mb-0">
+                        <li>Alumno: <b>ramiro</b> / grupo4</li>
+                        <li>Profesor: <b>profe</b> / grupo4</li>
+                        <li>Director: <b>admin</b> / grupo4</li>
+                    </ul>
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
 }
 
 export default Login;
