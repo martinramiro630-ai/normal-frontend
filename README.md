@@ -1,6 +1,6 @@
 # 🎓 Portal Académico - Sistema Web Interactivo
 
-Una aplicación web interactiva diseñada para la gestión y consulta académica de los estudiantes. El sistema incluye navegación fluida tipo SPA, cálculo dinámico de horarios de cursada en tiempo real, buscador interactivo de materias y simulador de promedio final.
+Una aplicación web interactiva diseñada para la gestión y consulta académica de los estudiantes. El sistema incluye navegación fluida tipo SPA, cálculo dinámico de horarios de cursada en tiempo real, buscador interactivo de materias y simulador de promedio final
 
 ---
 
