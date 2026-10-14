@@ -78,7 +78,7 @@ function Login({ setUsuario }) {
                 <div className="text-center mb-3">
                   <div className="fs-1 mb-2">🏛️</div>
                   <h2 className="text-center mb-1 fw-bold text-primary h4">
-                    Iniciar sesión
+                    Iniciar-sesión
                   </h2>
                   <p className="text-center text-muted small">
                     Accedé a la plataforma institucional
