@@ -1,39 +1,37 @@
-export default function Footer() {
+import { Container } from 'react-bootstrap';
+import { EnvelopeFill, TelephoneFill } from 'react-bootstrap-icons';
+
+function Footer() {
   return (
-    <footer className="mt-auto bg-dark text-white p-4 text-center">
-      <div className="d-flex flex-wrap justify-content-center align-items-center gap-3 gap-md-4 mb-4 small">
-        <a href="mailto:contacto@escuelanormal.edu.ar" className="text-decoration-none text-white-50">
-          <i className="fa-solid fa-envelope text-primary me-1"></i>
-          <strong>Email:</strong> contacto@escuelanormal.edu.ar
-        </a>
-        <span className="d-none d-sm-inline text-white-50"> | </span>
-        <a href="tel:+543814509999" className="text-decoration-none text-white-50">
-          <i className="fa-solid fa-phone text-primary me-1"></i>
-          <strong>Administración:</strong> (0381) 450-9999
-        </a>
-      </div>
+    <footer className="bg-dark text-white mt-5 py-4">
+      <Container className="text-center">
+        
+        {/* Bloque de contacto usando Flexbox de Bootstrap */}
+        <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3 mb-4">
+          <a href="mailto:contacto@escuelanormal.edu.ar" className="text-decoration-none text-white-50">
+            <EnvelopeFill className="text-primary me-2" size={18} />
+            <strong>Email:</strong> contacto@escuelanormal.edu.ar
+          </a>
+          
+          {/* Separador visible solo en pantallas medianas o grandes */}
+          <span className="text-white-50 d-none d-sm-inline">|</span>
+          
+          <a href="tel:+543814509999" className="text-decoration-none text-white-50">
+            <TelephoneFill className="text-primary me-2" size={18} />
+            <strong>Administración:</strong> (0381) 450-9999
+          </a>
+        </div>
 
-      <ul className="d-flex justify-content-center align-items-center gap-4 mb-4 list-unstyled fs-4">
-        <li>
-          <a href="https://wa.me/5493810000000" target="_blank" rel="noopener noreferrer" className="text-white-50 hover-primary">
-            <i className="fa-brands fa-whatsapp"></i>
-          </a>
-        </li>
-        <li>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white-50 hover-primary">
-            <i className="fa-brands fa-facebook"></i>
-          </a>
-        </li>
-        <li>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white-50 hover-primary">
-            <i className="fa-brands fa-instagram"></i>
-          </a>
-        </li>
-      </ul>
-
-      <p className="mb-0 small text-white-50">
-        &copy; 2026 Escuela Normal. Plataforma desarrollada por el Grupo 8 (Nicolas, Lucca, Abel, Ramiro).
-      </p>
+        <p className="mb-1">
+          Plataforma educativa institucional
+        </p>
+        <small className="text-white-50">
+          © 2026 Escuela Normal - Todos los derechos reservados
+        </small>
+        
+      </Container>
     </footer>
   );
 }
+
+export default Footer;
