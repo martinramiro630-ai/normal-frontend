@@ -18,7 +18,7 @@ export default function Header() {
           style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}
           title="Usuario Conectado: Ramiro Alumno"
         >
-          RA
+          Nico
         </span>
       </div>
     </header>
