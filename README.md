@@ -55,13 +55,3 @@ El archivo JavaScript principal integra lógica en el cliente para ofrecer una e
 | **Reloj de Clases** | `calcularProximaClase()` | Recorre la matriz de horarios filtrando por el objeto `Date()` y se actualiza cada 60 segundos (`setInterval`). |
 
 ---
-
-## 📅 Estructura de Horarios Cargada
-
-La aplicación evalúa dinámicamente la grilla horaria semanal:
-
-- **Lunes:** Programación IV (14:00 hs) \| Gestión de Desarrollo de SW (16:00 hs)
-- **Martes:** Programación IV (14:00 hs) \| Legislación (16:00 hs)
-- **Miércoles:** Programación IV (14:00 hs) \| Gestión de Desarrollo de SW (16:00 hs)
-- **Jueves:** Metodología de Sistemas II (14:00 hs) \| Introducción al Análisis de Datos (16:00 hs)
-- **Viernes:** Programación IV (14:00 hs) \| Metodología de Sistemas II (16:00 hs)
