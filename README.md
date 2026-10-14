@@ -43,3 +43,8 @@ El archivo JavaScript principal integra lógica en el cliente para ofrecer una e
 * **Modularización e Interactividad:** División de la interfaz en componentes reutilizables, envío de información mediante *props* y renderizado dinámico de listas utilizando la función `map()`
 * **Animaciones y Validaciones:** Uso de eventos del DOM para validar formularios interactivos y animar elementos visuales, como el llenado automático de las barras de progreso en la sección de materias
 * **Dashboard Responsivo:** Organización de la información en un sistema de tarjetas en formato de cuadrícula (Grid/Flexbox) que exhibe los indicadores y el perfil del alumno de forma clara
+
+---
+
+## Link a pagina desplegada (error) consultar
+https://normal-frontend.vercel.app/ 
