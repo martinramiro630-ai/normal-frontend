@@ -19,7 +19,6 @@ export default function AppRoutes() {
 
   return (
     <BrowserRouter>
-      {/* Navbar visible en todas las rutas, recibe el estado global */}
       <Navbar usuario={usuario} cerrarSesion={cerrarSesion} />
 
       <main className="flex-grow-1">
