@@ -1,16 +1,93 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar as BootstrapNavbar, Nav, Container, Button } from "react-bootstrap";
+import { 
+  Navbar as BootstrapNavbar, 
+  Nav, 
+  Container, 
+  Button, 
+  Form, 
+  InputGroup 
+} from "react-bootstrap";
+import { Search } from "react-bootstrap-icons";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 
+// 1. Reestructuramos el menú: Definimos qué es un enlace y qué abre un modal
 const menu = [
-  { etiqueta: "Institucional", tipo: "link_externo", url: "https://www.lagaceta.com.ar/nota/1149505/sociedad/profundizan-mejoras-edilicias-equipan-laboratorios-escuela-normal.html" },
-  { etiqueta: "Oferta académica", tipo: "modal_oferta" },
-  { etiqueta: "Inscripciones", tipo: "modal_inscripciones" },
+  { etiqueta: "Institucional", ruta: "/gaceta", tipo: "link" },
+  { etiqueta: "Oferta académica", accion: "oferta", tipo: "modal" },
+  { etiqueta: "Inscripciones", accion: "inscripciones", tipo: "modal" },
 ];
 
 function Navbar({ usuario, cerrarSesion }) {
+  const [busqueda, setBusqueda] = useState("");
   const navigate = useNavigate();
+
+  // Función para manejar las búsquedas
+  const buscar = (e) => {
+    e.preventDefault();
+    if (!busqueda.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Búsqueda vacía",
+        text: "Por favor, escribe algo para buscar en el portal.",
+        confirmButtonColor: "#f39c12"
+      });
+      return;
+    }
+    console.log("Buscar:", busqueda);
+  };
+
+  // 2. Función que detecta si el ítem del menú dispara un modal
+  const manejarClickMenu = (item, e) => {
+    e.preventDefault();
+
+    if (item.accion === "oferta") {
+      Swal.fire({
+        title: "Nuestra Oferta Académica",
+        html: `
+          <div class="text-start mt-3">
+            <p class="text-secondary">La escuela cuenta con formación bilingüe obligatoria en los siguientes idiomas:</p>
+            <div class="list-group">
+              <div class="list-group-item border-primary border-opacity-50 shadow-sm mb-2 rounded">
+                <h5 class="text-primary fw-bold mb-1"><i class="fa-solid fa-earth-americas me-2"></i>Inglés</h5>
+                <p class="mb-0 small text-muted">Niveles A1 a B2. Preparación para certificaciones internacionales (Cambridge).</p>
+              </div>
+              <div class="list-group-item border-info border-opacity-50 shadow-sm rounded">
+                <h5 class="text-info fw-bold mb-1"><i class="fa-solid fa-monument me-2"></i>Francés</h5>
+                <p class="mb-0 small text-muted">Nivel básico e intermedio enfocado en gramática y fonética.</p>
+              </div>
+            </div>
+          </div>
+        `,
+        icon: "info",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#0d6efd"
+      });
+    } else if (item.accion === "inscripciones") {
+      Swal.fire({
+        title: "Fechas de Inscripciones",
+        html: `
+          <div class="text-start mt-3">
+            <p class="text-secondary fw-semibold">Próximos turnos de exámenes finales:</p>
+            <div class="alert alert-warning shadow-sm border-0">
+              <i class="fa-regular fa-calendar-days me-2"></i> <strong>Turno Diciembre:</strong> Del 01 al 10 de Diciembre.
+            </div>
+            <div class="alert alert-info shadow-sm border-0">
+              <i class="fa-regular fa-calendar-days me-2"></i> <strong>Turno Febrero:</strong> Del 15 al 25 de Febrero.
+            </div>
+            <p class="small text-muted mb-0 fst-italic">
+              <i class="fa-solid fa-circle-exclamation text-danger me-1"></i> 
+              Aviso: Estas fechas son establecidas y modificadas directamente por la Dirección Institucional desde su panel.
+            </p>
+          </div>
+        `,
+        icon: "calendar",
+        confirmButtonText: "Cerrar Panel",
+        confirmButtonColor: "#198754"
+      });
+    }
+  };
 
   const confirmarSalida = () => {
     Swal.fire({
@@ -29,7 +106,6 @@ function Navbar({ usuario, cerrarSesion }) {
       if (result.isConfirmed) {
         cerrarSesion();
         navigate("/");
-        
         Swal.fire({
           toast: true,
           position: 'top-end',
@@ -43,74 +119,6 @@ function Navbar({ usuario, cerrarSesion }) {
     });
   };
 
-  const mostrarOfertaAcademica = () => {
-    Swal.fire({
-      title: 'Oferta Académica: Idiomas',
-      html: `
-        <div class="text-start mt-3">
-          <p class="text-muted">La Escuela Normal ofrece formación bilingüe de excelencia en las siguientes áreas:</p>
-          <div class="d-flex align-items-center gap-3 mb-3 p-3 border rounded bg-light">
-            <span class="fs-1">🇬🇧</span>
-            <div>
-              <h5 class="mb-0 fw-bold text-primary">Inglés</h5>
-              <small class="text-muted">Nivel Avanzado - Materia Obligatoria</small>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3 p-3 border rounded bg-light">
-            <span class="fs-1">🇫🇷</span>
-            <div>
-              <h5 class="mb-0 fw-bold text-info">Francés</h5>
-              <small class="text-muted">Nivel Intermedio - Taller Optativo</small>
-            </div>
-          </div>
-        </div>
-      `,
-      confirmButtonText: 'Excelente',
-      buttonsStyling: false,
-      customClass: { confirmButton: "btn btn-primary fw-bold" }
-    });
-  };
-
-  const mostrarInscripciones = () => {
-    Swal.fire({
-      title: 'Fechas de Inscripción',
-      html: `
-        <div class="text-start mt-3">
-          <div class="alert alert-warning small mb-3">
-            <i class="fa-solid fa-lock"></i> <strong>Aviso:</strong> Estas fechas son dinámicas y son actualizadas directamente por el panel de <strong>Dirección</strong>.
-          </div>
-          <ul class="list-group list-group-flush border rounded">
-            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
-              <strong>Primer Llamado</strong>
-              <span class="badge bg-success rounded-pill px-3 py-2">15 Nov - 20 Nov</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
-              <strong>Segundo Llamado</strong>
-              <span class="badge bg-success rounded-pill px-3 py-2">05 Dic - 10 Dic</span>
-            </li>
-          </ul>
-        </div>
-      `,
-      icon: 'calendar',
-      confirmButtonText: 'Entendido',
-      buttonsStyling: false,
-      customClass: { confirmButton: "btn btn-success fw-bold" }
-    });
-  };
-
-  const manejarClickMenu = (e, item) => {
-    e.preventDefault();
-    if (item.tipo === "link_externo") {
-      window.open(item.url, "_blank");
-    } else if (item.tipo === "modal_oferta") {
-      mostrarOfertaAcademica();
-    } else if (item.tipo === "modal_inscripciones") {
-      mostrarInscripciones();
-    } else {
-      navigate(item.ruta);
-    }
-  };
-
   return (
     <header role="banner">
       <BootstrapNavbar
@@ -122,9 +130,8 @@ function Navbar({ usuario, cerrarSesion }) {
         as="nav"
       >
         <Container fluid className="px-4">
-          
           <BootstrapNavbar.Brand as={Link} to="/" className="me-4">
-            <motion.span 
+            <motion.span
               className="logo d-flex align-items-center gap-2 fw-bold fs-5 text-white"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -135,47 +142,46 @@ function Navbar({ usuario, cerrarSesion }) {
             </motion.span>
           </BootstrapNavbar.Brand>
 
-          <BootstrapNavbar.Toggle className="border-0" />
+          <BootstrapNavbar.Toggle className="border-0" aria-controls="menu-principal" />
 
-          <BootstrapNavbar.Collapse>
-            <Nav className="mx-auto nav-hover gap-2">
+          <BootstrapNavbar.Collapse id="menu-principal">
+            <Nav className="mx-auto nav-hover gap-2" role="menubar">
+              {/* 3. Lógica para renderizar links o botones modales */}
               {menu.map((item) => (
-                <Nav.Link 
-                  href={item.url || "#"} 
-                  key={item.etiqueta} 
-                  className="fw-semibold"
-                  onClick={(e) => manejarClickMenu(e, item)}
-                >
-                  {item.etiqueta}
-                </Nav.Link>
+                item.tipo === "link" ? (
+                  <Nav.Link
+                    as={Link}
+                    to={item.ruta}
+                    key={item.etiqueta}
+                    title={`Ir a la sección de ${item.etiqueta}`}
+                    role="menuitem"
+                    className="fw-semibold"
+                  >
+                    {item.etiqueta}
+                  </Nav.Link>
+                ) : (
+                  <Nav.Link
+                    key={item.etiqueta}
+                    onClick={(e) => manejarClickMenu(item, e)}
+                    title={`Ver información de ${item.etiqueta}`}
+                    role="menuitem"
+                    className="fw-semibold"
+                    style={{ cursor: "pointer" }}
+                  >
+                    {item.etiqueta}
+                  </Nav.Link>
+                )
               ))}
             </Nav>
 
-            <motion.div 
-              className="d-flex flex-column flex-xl-row align-items-xl-center gap-3 my-3 my-xl-0"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              {!usuario ? (
-                <Button variant="light" size="sm" onClick={() => navigate("/login")} className="text-nowrap fw-bold px-3 py-2">
-                  Iniciar sesión
+            <div className="d-flex flex-column flex-xl-row align-items-xl-center gap-3 my-3 my-xl-0">
+              {/* Si existe un usuario logueado, mostramos el botón de cerrar sesión */}
+              {usuario && (
+                <Button variant="outline-danger" size="sm" className="fw-bold" onClick={confirmarSalida}>
+                  Cerrar Sesión
                 </Button>
-              ) : (
-                <div className="d-flex align-items-center gap-2 text-white">
-                  <span className="text-nowrap fw-semibold me-2">
-                    {usuario.nombre} ({usuario.rol})
-                  </span>
-                  <Button variant="light" size="sm" className="text-nowrap text-dark fw-bold" onClick={() => navigate(`/dashboard/${usuario.rol}`)}>
-                    Mi panel
-                  </Button>
-                  
-                  <Button variant="danger" size="sm" className="text-nowrap fw-bold" onClick={confirmarSalida}>
-                    Salir
-                  </Button>
-                </div>
               )}
-            </motion.div>
+            </div>
           </BootstrapNavbar.Collapse>
         </Container>
       </BootstrapNavbar>

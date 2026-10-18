@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "../components/Navbar.jsx";
 import Inicio from "../pages/Inicio.jsx";
 import Login from "../pages/Login.jsx";
+import Error404 from "../pages/Error404.jsx";
 
 import DashboardAlumno from "../pages/DashboardAlumno.jsx";
 import DashboardProfesor from "../pages/DashboardProfesor.jsx";
@@ -57,8 +58,8 @@ export default function AppRoutes() {
             }
           />
 
-          {/* Fallback: Si escriben cualquier otra cosa en la URL, van al inicio */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Fallback 404: Renderiza tu página de error personalizada si la URL no existe */}
+          <Route path="*" element={<Error404 />} />
         </Routes>
       </main>
     </BrowserRouter>
