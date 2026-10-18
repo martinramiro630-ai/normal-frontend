@@ -1,147 +1,203 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Swal from "sweetalert2";
-import { Container, Row, Col, Card, Form, Button, Badge, Table } from "react-bootstrap";
+import { Container, Row, Col, Card, Form, Button, Badge, Table, Spinner } from "react-bootstrap";
 import { motion } from "framer-motion";
-import fachadaImg from '../assets/fachada-escuela.png';
 
-export default function DashboardDirector({ usuario }) {
-  // 1. Estados para Profesores
-  const [profesores, setProfesores] = useState([
-    { id: 1, nombre: "Prof. Martínez", materias: ["Matemática 4to B", "Matemática 5to A"] },
-    { id: 2, nombre: "Prof. Ruiz", materias: ["Física 5to A"] },
-    { id: 3, nombre: "Prof. Gómez", materias: ["Taller de Oratoria"] },
-    { id: 4, nombre: "Prof. Smith", materias: [] }
+export default function DashboardDirector() {
+  // Estados para Materias (NUEVO CRUD)
+  const [materiasGlobales, setMateriasGlobales] = useState([
+    { id: 1, nombre: "Matemática 4to B", curso: "4to Año" },
+    { id: 2, nombre: "Física 5to A", curso: "5to Año" },
+    { id: 3, nombre: "Taller de Oratoria", curso: "Varios" }
   ]);
+
+  // Estados para Profesores (CRUD existente adaptado)
+  const [profesores, setProfesores] = useState([]);
   const [profesorSeleccionado, setProfesorSeleccionado] = useState("");
-  const [nuevaMateria, setNuevaMateria] = useState("");
+  const [materiaSeleccionada, setMateriaSeleccionada] = useState("");
+  const [cargando, setCargando] = useState(true);
 
-  // 2. Estados para el Carrusel de Imágenes (Conectado a Assets locales)
-  const [carrusel, setCarrusel] = useState([
-    { id: 1, url: fachadaImg, titulo: "Fachada de la Escuela" }, // <-- Imagen local cargada
-    { id: 2, url: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500", titulo: "Nuevos Laboratorios" }
-  ]);
-  const [nuevaImagen, setNuevaImagen] = useState({ url: "", titulo: "" });
-
-  // Manejador de Asignación de Materias
-  const manejarAsignacion = (e) => {
-    e.preventDefault();
-    if (!profesorSeleccionado || !nuevaMateria.trim()) {
-      Swal.fire({ icon: "warning", title: "Datos incompletos", text: "Selecciona un profesor y escribe la materia.", confirmButtonColor: "#f39c12" });
-      return;
-    }
-
-    const profesoresActualizados = profesores.map(prof => {
-      if (prof.id.toString() === profesorSeleccionado) {
-        return { ...prof, materias: [...prof.materias, nuevaMateria] };
+  // READ: Consumo inicial de la API para Profesores
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL || "https://jsonplaceholder.typicode.com/users";
+    const obtenerProfesores = async () => {
+      try {
+        const response = await axios.get(API_URL);
+        const profesoresApi = response.data.slice(0, 4).map((user, index) => {
+          const apellido = user.name.split(" ").pop();
+          return {
+            id: user.id,
+            nombre: `Prof. ${apellido}`,
+            materias: index === 0 ? ["Matemática 4to B"] : []
+          };
+        });
+        setProfesores(profesoresApi);
+        setCargando(false);
+      } catch (error) {
+        Swal.fire({ icon: "error", title: "Error", text: "Fallo al conectar con la API." });
+        setCargando(false);
       }
-      return prof;
+    };
+    obtenerProfesores();
+  }, []);
+
+  // -----------------------------------------------------
+  // CRUD MATERIAS GLOBALES DE LA INSTITUCIÓN
+  // -----------------------------------------------------
+
+  // CREATE: Registrar nueva materia en la escuela
+  const crearMateria = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: "Registrar Nueva Materia",
+      html: `
+        <input id="swal-input-materia" class="swal2-input" placeholder="Nombre (ej: Biología)">
+        <input id="swal-input-curso" class="swal2-input" placeholder="Curso (ej: 3ro A)">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Guardar Materia",
+      confirmButtonColor: "#198754",
+      preConfirm: () => {
+        return [
+          document.getElementById("swal-input-materia").value,
+          document.getElementById("swal-input-curso").value
+        ];
+      }
     });
 
-    setProfesores(profesoresActualizados);
-    const nombreProfe = profesores.find(p => p.id.toString() === profesorSeleccionado).nombre;
-    Swal.fire({ icon: "success", title: "Materia Asignada", text: `Se asignó "${nuevaMateria}" a ${nombreProfe}.`, confirmButtonColor: "#198754" });
-    setNuevaMateria("");
+    if (formValues && formValues[0] && formValues[1]) {
+      const nuevaMateriaObj = {
+        id: Date.now(),
+        nombre: `${formValues[0]} ${formValues[1]}`, // Une Biología + 3ro A
+        curso: formValues[1]
+      };
+      setMateriasGlobales([...materiasGlobales, nuevaMateriaObj]);
+      Swal.fire({ icon: "success", title: "Registrada", text: `La materia se añadió a la currícula.`, timer: 2000 });
+    }
   };
 
-  // Manejador del Carrusel
-  const manejarCarrusel = (e) => {
-    e.preventDefault();
-    if (!nuevaImagen.url.trim() || !nuevaImagen.titulo.trim()) {
-      Swal.fire({ icon: "warning", title: "Campos vacíos", text: "Por favor, ingresa la URL de la imagen y un título descriptivo.", confirmButtonColor: "#f39c12" });
-      return;
-    }
-
-    const imagenAgregada = {
-      id: Date.now(),
-      url: nuevaImagen.url,
-      titulo: nuevaImagen.titulo
-    };
-
-    setCarrusel([imagenAgregada, ...carrusel]);
-    
+  // DELETE: Eliminar materia de la escuela
+  const eliminarMateria = (id, nombre) => {
     Swal.fire({
-      icon: "success",
-      title: "Carrusel Actualizado",
-      text: "La nueva imagen ya está visible en la página de inicio.",
+      title: `¿Eliminar ${nombre}?`,
+      text: "Esto no quitará la materia de los profesores que ya la tienen asignada.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setMateriasGlobales(materiasGlobales.filter(mat => mat.id !== id));
+        Swal.fire({ icon: "success", title: "Eliminada", timer: 1500, showConfirmButton: false });
+      }
+    });
+  };
+
+  // -----------------------------------------------------
+  // CRUD PROFESORES (Existente)
+  // -----------------------------------------------------
+
+  const crearProfesor = async () => {
+    const { value: nombreNuevo } = await Swal.fire({
+      title: "Registrar Nuevo Docente",
+      input: "text",
+      inputPlaceholder: "Ej: Prof. Gómez",
+      showCancelButton: true,
+      confirmButtonText: "Crear",
       confirmButtonColor: "#198754"
     });
 
-    setNuevaImagen({ url: "", titulo: "" });
+    if (nombreNuevo) {
+      setProfesores([...profesores, { id: Date.now(), nombre: nombreNuevo, materias: [] }]);
+      Swal.fire({ icon: "success", title: "Registrado", timer: 1500, showConfirmButton: false });
+    }
   };
 
-  const eliminarImagen = (id) => {
-    setCarrusel(carrusel.filter(img => img.id !== id));
-    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Imagen removida', showConfirmButton: false, timer: 2000 });
+  const editarProfesor = async (id, nombreActual) => {
+    const { value: nuevoNombre } = await Swal.fire({
+      title: "Editar Docente",
+      input: "text",
+      inputValue: nombreActual,
+      showCancelButton: true,
+      confirmButtonText: "Actualizar",
+      confirmButtonColor: "#0d6efd"
+    });
+
+    if (nuevoNombre && nuevoNombre !== nombreActual) {
+      setProfesores(profesores.map(prof => prof.id === id ? { ...prof, nombre: nuevoNombre } : prof));
+      Swal.fire({ icon: "success", title: "Actualizado", timer: 1500, showConfirmButton: false });
+    }
+  };
+
+  const eliminarProfesor = (id, nombre) => {
+    Swal.fire({
+      title: `¿Despedir a ${nombre}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setProfesores(profesores.filter(prof => prof.id !== id));
+        Swal.fire({ icon: "success", title: "Eliminado", timer: 1500, showConfirmButton: false });
+      }
+    });
+  };
+
+  // UPDATE: Asignar Materia a un profesor (AQUÍ CAMBIA: Usa el select de materias globales)
+  const manejarAsignacion = (e) => {
+    e.preventDefault();
+    if (!profesorSeleccionado || !materiaSeleccionada) {
+      Swal.fire({ icon: "warning", title: "Faltan datos", text: "Elige docente y materia.", confirmButtonColor: "#f39c12" });
+      return;
+    }
+
+    setProfesores(profesores.map(prof => {
+      if (prof.id.toString() === profesorSeleccionado && !prof.materias.includes(materiaSeleccionada)) {
+        return { ...prof, materias: [...prof.materias, materiaSeleccionada] };
+      }
+      return prof;
+    }));
+    
+    setMateriaSeleccionada("");
+    Swal.fire({ icon: "success", title: "Materia Asignada al Docente", timer: 1500, showConfirmButton: false });
   };
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="h3 fw-bold text-primary mb-0">Panel de Dirección</h2>
-          <p className="text-muted mb-0">Gestión Académica y Contenido del Portal</p>
-        </div>
+        <h2 className="h3 fw-bold text-primary mb-0">Panel de Dirección Institucional</h2>
       </div>
 
-      <Row className="g-4 mb-4">
-        {/* SECCIÓN ACADÉMICA: Asignación */}
-        <Col lg={4}>
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <Card className="border-0 border-start border-primary border-4 shadow-sm rounded-4 p-4 h-100 bg-white">
-              <h3 className="h5 fw-bold text-dark mb-4">
-                <i className="fa-solid fa-chalkboard-user me-2 text-primary"></i> Asignar Materia
-              </h3>
-              <Form onSubmit={manejarAsignacion}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="small fw-semibold text-secondary">Seleccionar Docente</Form.Label>
-                  <Form.Select value={profesorSeleccionado} onChange={(e) => setProfesorSeleccionado(e.target.value)} className="focus-ring focus-ring-primary bg-light">
-                    <option value="">-- Elegir profesor --</option>
-                    {profesores.map(prof => <option key={prof.id} value={prof.id}>{prof.nombre}</option>)}
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className="mb-4">
-                  <Form.Label className="small fw-semibold text-secondary">Materia y Curso</Form.Label>
-                  <Form.Control type="text" placeholder="Ej: Biología 3ro A" value={nuevaMateria} onChange={(e) => setNuevaMateria(e.target.value)} className="focus-ring focus-ring-primary bg-light" />
-                </Form.Group>
-                <Button type="submit" variant="primary" className="w-100 fw-bold rounded-pill shadow-sm">Asignar al Profesor</Button>
-              </Form>
-            </Card>
-          </motion.div>
-        </Col>
-
-        {/* SECCIÓN ACADÉMICA: Plantel */}
-        <Col lg={8}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-            <Card className="border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+      {cargando ? (
+        <div className="text-center py-5"><Spinner animation="border" variant="primary" /></div>
+      ) : (
+        <Row className="g-4 mb-4">
+          
+          {/* COLUMNA IZQUIERDA: GESTIÓN DE MATERIAS Y ASIGNACIONES */}
+          <Col lg={4} className="d-flex flex-column gap-4">
+            
+            {/* CRUD Materias Globales */}
+            <Card className="border-0 shadow-sm rounded-4 p-4 bg-white">
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <h3 className="h5 fw-bold text-dark mb-0">Plantel Docente Activo</h3>
-                <Badge bg="success" className="fs-6 px-3">{profesores.length} Profesores</Badge>
+                <h3 className="h5 fw-bold text-dark mb-0">Materias Oficiales</h3>
+                <Button variant="success" size="sm" className="fw-bold rounded-pill" onClick={crearMateria}>
+                  <i className="fa-solid fa-plus"></i> Nueva
+                </Button>
               </div>
-              <div className="table-responsive">
-                <Table hover className="align-middle mb-0">
-                  <thead className="table-light">
-                    <tr><th className="text-secondary">Docente</th><th className="text-secondary">Materias Asignadas</th></tr>
-                  </thead>
+              
+              <div className="table-responsive" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                <Table hover size="sm" className="align-middle mb-0">
                   <tbody>
-                    {profesores.map((prof) => (
-                      <tr key={prof.id}>
-                        <td className="fw-bold text-dark">{prof.nombre}</td>
-                        <td>
-                          {prof.materias.length > 0 ? (
-                            <div className="d-flex flex-wrap gap-2">
-                              {/* <-- AQUI ESTA LA CORRECCIÓN DE CONTRASTE --> */}
-                              {prof.materias.map((materia, idx) => (
-                                <Badge 
-                                  bg="light" 
-                                  text="primary" 
-                                  key={idx} 
-                                  className="rounded-pill border border-primary px-3 py-2 shadow-sm"
-                                >
-                                  {materia}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : <span className="text-muted small fst-italic">Sin materias asignadas</span>}
+                    {materiasGlobales.map((mat) => (
+                      <tr key={mat.id}>
+                        <td className="fw-semibold text-secondary">{mat.nombre}</td>
+                        <td className="text-end">
+                          <Button variant="outline-danger" size="sm" className="border-0" onClick={() => eliminarMateria(mat.id, mat.nombre)}>
+                            <i className="fa-solid fa-trash"></i>
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -149,54 +205,94 @@ export default function DashboardDirector({ usuario }) {
                 </Table>
               </div>
             </Card>
-          </motion.div>
-        </Col>
-      </Row>
 
-      {/* SECCIÓN DE DISEÑO WEB (CARRUSEL) */}
-      <Row className="g-4">
-        <Col lg={4}>
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-             <Card className="border-0 border-start border-warning border-4 shadow-sm rounded-4 p-4 h-100 bg-white">
-              <h3 className="h5 fw-bold text-dark mb-4">
-                <i className="fa-regular fa-images me-2 text-warning"></i> Actualizar Carrusel
-              </h3>
-              <Form onSubmit={manejarCarrusel}>
+            {/* Asignación de Materias al Docente */}
+            <Card className="border-0 shadow-sm rounded-4 p-4 bg-white">
+              <h3 className="h5 fw-bold text-dark mb-4">Asignar Cargo</h3>
+              <Form onSubmit={manejarAsignacion}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="small fw-semibold text-secondary">URL de la Imagen</Form.Label>
-                  <Form.Control type="url" placeholder="https://ejemplo.com/foto.jpg" value={nuevaImagen.url} onChange={(e) => setNuevaImagen({...nuevaImagen, url: e.target.value})} className="focus-ring focus-ring-warning bg-light" />
+                  <Form.Label className="small fw-bold text-secondary">1. Seleccionar Docente</Form.Label>
+                  <Form.Select value={profesorSeleccionado} onChange={(e) => setProfesorSeleccionado(e.target.value)}>
+                    <option value="">-- Elegir profesor --</option>
+                    {profesores.map(prof => <option key={prof.id} value={prof.id}>{prof.nombre}</option>)}
+                  </Form.Select>
                 </Form.Group>
+                
                 <Form.Group className="mb-4">
-                  <Form.Label className="small fw-semibold text-secondary">Título de la Diapositiva</Form.Label>
-                  <Form.Control type="text" placeholder="Ej: Acto del 25 de Mayo" value={nuevaImagen.titulo} onChange={(e) => setNuevaImagen({...nuevaImagen, titulo: e.target.value})} className="focus-ring focus-ring-warning bg-light" />
+                  <Form.Label className="small fw-bold text-secondary">2. Seleccionar Materia</Form.Label>
+                  <Form.Select value={materiaSeleccionada} onChange={(e) => setMateriaSeleccionada(e.target.value)}>
+                    <option value="">-- Elegir materia oficial --</option>
+                    {materiasGlobales.map(mat => <option key={mat.id} value={mat.nombre}>{mat.nombre}</option>)}
+                  </Form.Select>
                 </Form.Group>
-                <Button type="submit" variant="warning" className="w-100 fw-bold rounded-pill shadow-sm text-dark">Subir Imagen</Button>
+                
+                <Button type="submit" variant="primary" className="w-100 fw-bold rounded-pill shadow-sm">
+                  <i className="fa-solid fa-link me-2"></i> Vincular Docente
+                </Button>
               </Form>
-             </Card>
-          </motion.div>
-        </Col>
+            </Card>
+          </Col>
 
-        <Col lg={8}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-             <Card className="border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                <h3 className="h5 fw-bold text-dark mb-4">Imágenes Activas en Inicio</h3>
-                <div className="d-flex gap-3 flex-wrap">
-                  {carrusel.map((img) => (
-                    <div key={img.id} className="position-relative shadow-sm rounded overflow-hidden" style={{ width: "200px", height: "120px" }}>
-                      <img src={img.url} alt={img.titulo} className="w-100 h-100 object-fit-cover" />
-                      <div className="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white p-1 small text-truncate text-center">
-                        {img.titulo}
-                      </div>
-                      <Button variant="danger" size="sm" className="position-absolute top-0 end-0 m-1 px-2 py-0 rounded-circle" onClick={() => eliminarImagen(img.id)}>
-                        <i className="fa-solid fa-xmark"></i>
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-             </Card>
-          </motion.div>
-        </Col>
-      </Row>
+          {/* COLUMNA DERECHA: CRUD PROFESORES */}
+          <Col lg={8}>
+            <Card className="border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="h5 fw-bold text-dark mb-0">Nómina de Docentes</h3>
+                <Button variant="success" className="fw-bold rounded-pill shadow-sm" onClick={crearProfesor}>
+                  <i className="fa-solid fa-user-plus me-2"></i> Nuevo Docente
+                </Button>
+              </div>
+              
+              <div className="table-responsive">
+                <Table hover className="align-middle mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Docente</th>
+                      <th>Materias Asignadas</th>
+                      <th className="text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {profesores.map((prof) => (
+                      <tr key={prof.id}>
+                        <td className="fw-bold text-dark">{prof.nombre}</td>
+                        <td>
+                          <div className="d-flex flex-wrap gap-2">
+                            {prof.materias.map((materia, idx) => (
+                              <Badge bg="primary" text="white" key={idx} className="rounded-pill px-3 py-2 shadow-sm">
+                                {materia}
+                              </Badge>
+                            ))}
+                            {prof.materias.length === 0 && <span className="text-muted small fst-italic">Sin asignar</span>}
+                          </div>
+                        </td>
+                        <td className="text-center text-nowrap">
+                          <Button 
+                            variant="primary" 
+                            size="sm" 
+                            className="me-2 fw-bold shadow-sm" 
+                            onClick={() => editarProfesor(prof.id, prof.nombre)}
+                          >
+                            <i className="fa-solid fa-pen me-1"></i> Editar
+                          </Button>
+                          <Button 
+                            variant="danger" 
+                            size="sm" 
+                            className="fw-bold shadow-sm" 
+                            onClick={() => eliminarProfesor(prof.id, prof.nombre)}
+                          >
+                            <i className="fa-solid fa-trash me-1"></i> Eliminar
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      )}
     </Container>
   );
 }
